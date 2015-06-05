@@ -52,7 +52,7 @@ public class demo {
 
         nw.setVisible(true);
 
-        
+
 
     }
 
