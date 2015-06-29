@@ -7,6 +7,8 @@ import java.util.Scanner;
 
 public class BibliotecaApp {
 
+    private static int flag = 0;
+
     public final static int MENU_LIST_BOOKS = 1;
     public final static int MENU_CHECK_OUT_BOOK = 2;
     public final static int MENU_RETURN_BOOK = 3;
@@ -32,12 +34,58 @@ public class BibliotecaApp {
 
     public static void main(String[] args) throws Exception{
         welcomeMessage();
-        readUserTextFile("D:\\Documents\\GitHub\\twu-biblioteca-tianbiao\\res\\users.txt");
-        if(login()){
-            readBookTextFile("D:\\Documents\\GitHub\\twu-biblioteca-tianbiao\\res\\books.txt");
-            readMovieTextFile("D:\\Documents\\GitHub\\twu-biblioteca-tianbiao\\res\\movies.txt");
-            while(run()){
+        readUserTextFile("/Users/btian/Downloads/twu-biblioteca-tianbiao-master/res/users.txt");
+        System.out.println("Please login");
+        System.out.print("library number(xxx-xxxx):");
+        String userInfo;
+        Scanner inputScanner = new Scanner(System.in);
+        userInfo = inputScanner.nextLine();
+        System.out.print("password:");
+        userInfo += inputScanner.nextLine();
 
+        if(login(userInfo)){
+            readBookTextFile("/Users/btian/Downloads/twu-biblioteca-tianbiao-master/res/books.txt");
+            readMovieTextFile("/Users/btian/Downloads/twu-biblioteca-tianbiao-master/res/movies.txt");
+
+            while(flag==0){
+                showMainMenu();
+                int choice = 0;
+                String inputString;
+                inputString = inputScanner.nextLine();
+                choice = Integer.parseInt(inputString);
+                switch(choice){
+                    case MENU_LIST_BOOKS:
+                        System.out.println("\tname\tauthor\tpublishedYear");
+                        showBookList();
+                        break;
+                    case MENU_CHECK_OUT_BOOK:
+                        System.out.println("please input book info(name+abuthor+pulishedYear(no space))");
+                        String checkOutBookInfo;
+                        checkOutBookInfo = inputScanner.nextLine();
+                        checkOut(checkOutBookInfo);
+                        break;
+                    case MENU_RETURN_BOOK:
+                        System.out.println("please input book info(name+abuthor+pulishedYear(no space))");
+                        String returnBookInfo;
+                        returnBookInfo = inputScanner.nextLine();
+                        returnBook(returnBookInfo);
+                        break;
+                    case MENU_LIST_MOVIES:
+                        System.out.println("\tname\tyear\tdirector\tmovieRating");
+                        showMovieList();
+                        break;
+                    case MENU_CHECK_OUT_MOVIE:
+                        System.out.println("please input book info(name+year+director+movieRating(no space))");
+                        String checkOutMovieInfo;
+                        checkOutMovieInfo = inputScanner.nextLine();
+                        checkOutMovie(checkOutMovieInfo);
+                        break;
+                    case MENU_QUIT:
+                        flag=1;
+                        break;
+                    default:
+                        System.out.println(" Select a valid option!");
+                }
             }
             System.out.println("Logout, welcome back again!!");
         }
@@ -45,10 +93,11 @@ public class BibliotecaApp {
     }
 
     //welcome message
-    public static void welcomeMessage(){
+    public static int welcomeMessage(){
         System.out.println("************************************");
         System.out.println("        Welcome to Biblioteca        ");
         System.out.println("************************************");
+        return 0;
     }
 
     //show book list
@@ -117,21 +166,15 @@ public class BibliotecaApp {
 
 //    }
 
-    public static boolean login(){
-        System.out.println("Please login");
-        System.out.print("library number(xxx-xxxx):");
-        String userInfo;
-        Scanner inputScanner = new Scanner(System.in);
-        userInfo = inputScanner.nextLine();
-        System.out.print("password:");
-        userInfo += inputScanner.nextLine();
+    public static boolean login(String userInfo){
         if(isExistUser(userLists,userInfo)){
             return true;
         }
         return false;
     }
 
-    public static void readUserTextFile(String filePath) {
+    public static boolean readUserTextFile(String filePath) {
+        userLists.clear();
         try {
             String encoding = "GBK";
             File file = new File(filePath);
@@ -148,18 +191,23 @@ public class BibliotecaApp {
                     }
                     userLists.add(user);
                     userListsBackup.add(user);
+
                 }
                 read.close();
+                return true;
             } else {
                 System.out.println("找不到指定的文件");
+                return false;
             }
         } catch (Exception e) {
             System.out.println("读取文件内容出错");
             e.printStackTrace();
+            return false;
         }
     }
 
-    public static void readBookTextFile(String filePath) {
+    public static boolean readBookTextFile(String filePath) {
+        bookLists.clear();
         try {
             String encoding = "GBK";
             File file = new File(filePath);
@@ -178,16 +226,20 @@ public class BibliotecaApp {
                     bookListsBackup.add(book);
                 }
                 read.close();
+                return true;
             } else {
                 System.out.println("找不到指定的文件");
+                return false;
             }
         } catch (Exception e) {
             System.out.println("读取文件内容出错");
             e.printStackTrace();
+            return false;
         }
     }
 
-    public static void readMovieTextFile(String filePath){
+    public static boolean readMovieTextFile(String filePath){
+        movieLists.clear();
         try {
             String encoding="GBK";
             File file=new File(filePath);
@@ -206,16 +258,20 @@ public class BibliotecaApp {
                     movieListsBackup.add(movie);
                 }
                 read.close();
+                return true;
             }else{
                 System.out.println("找不到指定的文件");
+                return false;
             }
         } catch (Exception e) {
             System.out.println("读取文件内容出错");
             e.printStackTrace();
+            return false;
         }
     }
 
-    public static void showBookList(){
+    public static int showBookList(){
+        int numberOfBooks = 0;
         for(int i = 0; i < bookLists.size(); i++){
             Book book = bookLists.get(i);
             String outputString = new String();
@@ -223,10 +279,13 @@ public class BibliotecaApp {
                outputString += "\t" + book.getBookInfo(j);
             }
             System.out.println(outputString);
+            numberOfBooks++;
         }
+        return numberOfBooks;
     }
 
-    public static void showMovieList(){
+    public static int showMovieList(){
+        int numberOfMovies = 0;
         for(int i = 0; i < movieLists.size(); i++){
             Movie movie = movieLists.get(i);
             String outputString = new String();
@@ -234,7 +293,9 @@ public class BibliotecaApp {
                 outputString += "\t" + movie.getMovieInfo(j);
             }
             System.out.println(outputString);
+            numberOfMovies++;
         }
+        return numberOfMovies;
     }
 
     public static void showMainMenu(){
@@ -248,46 +309,34 @@ public class BibliotecaApp {
         System.out.println("************************************");
     }
 
-    public static void checkOut(){
-        System.out.println("please input book info(name+abuthor+pulishedYear(no space))");
-        String checkOutBookInfo;
-        Scanner inputScanner = new Scanner(System.in);
-        checkOutBookInfo = inputScanner.nextLine();
+    public static int checkOut(String checkOutBookInfo){
         if(isExistBook(bookLists, checkOutBookInfo)){
             bookLists.remove(bookTemp);
             System.out.println("successful checkout!");
-            return;
         }
-        System.out.println("unsuccessful checkout!");
+        else System.out.println("unsuccessful checkout!");
+        return bookLists.size();
     }
 
-    public static void checkOutMovie(){
-        System.out.println("please input book info(name+year+director+movieRating(no space))");
-        String checkOutMovieInfo;
-        Scanner inputScanner = new Scanner(System.in);
-        checkOutMovieInfo = inputScanner.nextLine();
+    public static int checkOutMovie(String checkOutMovieInfo){
         if(isExistMovie(movieLists, checkOutMovieInfo)){
             movieLists.remove(movieTemp);
             System.out.println("successful checkout!");
-            return;
         }
-        System.out.println("unsuccessful checkout!");
+        else System.out.println("unsuccessful checkout!");
+        return movieLists.size();
     }
 
-    public static void returnBook(){
-        System.out.println("please input book info(name+abuthor+pulishedYear(no space))");
-        String returnBookInfo;
-        Scanner inputScanner = new Scanner(System.in);
-        returnBookInfo = inputScanner.nextLine();
+    public static int returnBook(String returnBookInfo){
         if(isExistBook(bookListsBackup, returnBookInfo)){
             Book book = bookTemp;
             if(!isExistBook(bookLists, returnBookInfo)){
                 bookLists.add(book);
                 System.out.println("successful return book!");
-                return;
             }
         }
-        System.out.println("unsuccessful return book!!");
+        else System.out.println("unsuccessful return book!!");
+        return bookLists.size();
     }
 
     public static boolean isExistUser(List<User> users, String info){
@@ -338,36 +387,4 @@ public class BibliotecaApp {
         return false;
     }
 
-    public static boolean run(){
-        showMainMenu();
-        int choice = 0;
-        String inputString;
-        Scanner inputScanner = new Scanner(System.in);
-        inputString = inputScanner.nextLine();
-        choice = Integer.parseInt(inputString);
-        switch(choice){
-            case MENU_LIST_BOOKS:
-                System.out.println("\tname\tauthor\tpublishedYear");
-                showBookList();
-                return true;
-            case MENU_CHECK_OUT_BOOK:
-                checkOut();
-                return true;
-            case MENU_RETURN_BOOK:
-                returnBook();
-                return true;
-            case MENU_LIST_MOVIES:
-                System.out.println("\tname\tyear\tdirector\tmovieRating");
-                showMovieList();
-                return true;
-            case MENU_CHECK_OUT_MOVIE:
-                checkOutMovie();
-                return true;
-            case MENU_QUIT:
-                return false;
-            default:
-                System.out.println(" Select a valid option!");
-                return true;
-        }
-    }
 }
